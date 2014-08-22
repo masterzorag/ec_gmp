@@ -213,7 +213,6 @@ int main(int argc, char *argv[])
 		Base point:
 		Gx:	70ee7b94f7d52ed6b1a1d3201e2d85d3b82a9810
 		Gy:	0b23823cd6dc3df20979373e5662f7083f6aa56f
-		q:	5432bddd1f97418147aff016eaa6100834f2caa8c498b88965689ee44df349b066cd43cbf4f2c5d0
 	*/
 		mpz_set_str(P.x, "0x70ee7b94f7d52ed6b1a1d3201e2d85d3b82a9810", 0);
 		mpz_set_str(P.y, "0x0b23823cd6dc3df20979373e5662f7083f6aa56f", 0);
@@ -226,11 +225,8 @@ int main(int argc, char *argv[])
 	*/
 		mpz_set_str(m, "0x00542d46e7b3daac8aeb81e533873aabd6d74bb710", 0);
 	}
-
-	/*
-		Compute
-		p = k x G == R = m x P
-	*/
+	
+	/*	p = k x G == R = m x P	*/
 	Scalar_Multiplication(P, &R, m);
 	
 	mpz_out_str(stdout, 16, R.x); puts("");
