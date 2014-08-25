@@ -38,6 +38,7 @@ void Point_Doubling(struct Point P, struct Point *R)
 	mpz_t slope, temp;
 	mpz_init(temp);
 	mpz_init(slope);
+	
 	if(mpz_cmp_ui(P.y, 0) != 0) {
 		mpz_mul_ui(temp, P.y, 2);
 		mpz_invert(temp, temp, EC.p);
@@ -58,6 +59,8 @@ void Point_Doubling(struct Point P, struct Point *R)
 		mpz_set_ui(R->x, 0);
 		mpz_set_ui(R->y, 0);
 	}
+	mpz_clear(temp);
+	mpz_clear(slope);
 }
 
 void Point_Addition(struct Point P, struct Point Q, struct Point *R)
@@ -66,10 +69,6 @@ void Point_Addition(struct Point P, struct Point Q, struct Point *R)
 	mpz_mod(P.y, P.y, EC.p);
 	mpz_mod(Q.x, Q.x, EC.p);
 	mpz_mod(Q.y, Q.y, EC.p);
-
-	mpz_t temp, slope;
-	mpz_init(temp);
-	mpz_init_set_ui(slope, 0);
 
 	if(mpz_cmp_ui(P.x, 0) == 0 && mpz_cmp_ui(P.y, 0) == 0) {
 		mpz_set(R->x, Q.x);
@@ -83,24 +82,33 @@ void Point_Addition(struct Point P, struct Point Q, struct Point *R)
 		return;
 	}
 
+	mpz_t temp;
+	mpz_init(temp);
+
 	if(mpz_cmp_ui(Q.y, 0) != 0) { 
 		mpz_sub(temp, EC.p, Q.y);
 		mpz_mod(temp, temp, EC.p);
 	} else
-		mpz_set_ui(temp,0);
+		mpz_set_ui(temp, 0);
 
 	//gmp_printf("\n temp=%Zd\n", temp);
 
 	if(mpz_cmp(P.y, temp) == 0 && mpz_cmp(P.x, Q.x) == 0) {
 		mpz_set_ui(R->x, 0);
 		mpz_set_ui(R->y, 0);
+		mpz_clear(temp);
 		return;
 	}
 	
 	if(mpz_cmp(P.x, Q.x) == 0 && mpz_cmp(P.y, Q.y) == 0)	{
 		Point_Doubling(P, R);
+		
+		mpz_clear(temp);
 		return;		
 	} else {
+		mpz_t slope;
+		mpz_init_set_ui(slope, 0);
+
 		mpz_sub(temp, P.x, Q.x);
 		mpz_mod(temp, temp, EC.p);
 		mpz_invert(temp, temp, EC.p);
@@ -115,6 +123,9 @@ void Point_Addition(struct Point P, struct Point Q, struct Point *R)
 		mpz_mul(R->y, slope, temp);
 		mpz_sub(R->y, R->y, P.y);
 		mpz_mod(R->y, R->y, EC.p);
+		
+		mpz_clear(temp);
+		mpz_clear(slope);
 		return;
 	}
 }
@@ -152,6 +163,9 @@ void Scalar_Multiplication(struct Point P, struct Point *R, mpz_t m)
 		if(mpz_tstbit(m, loop))
 			Point_Addition(T, Q, R);
 	}
+	
+	mpz_clear(Q.x); mpz_clear(Q.y);
+	mpz_clear(T.x); mpz_clear(T.y);
 }		
 
 int main(int argc, char *argv[])
@@ -231,4 +245,10 @@ int main(int argc, char *argv[])
 	
 	mpz_out_str(stdout, 16, R.x); puts("");
 	mpz_out_str(stdout, 16, R.y); puts("");
+
+	// Free variables
+	mpz_clear(EC.a); mpz_clear(EC.b); mpz_clear(EC.p);
+	mpz_clear(R.x); mpz_clear(R.y);
+	mpz_clear(P.x); mpz_clear(P.y);
+	mpz_clear(m);
 }
