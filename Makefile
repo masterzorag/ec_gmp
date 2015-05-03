@@ -1,5 +1,5 @@
-CC=		gcc
-CFLAGS=	-std=gnu99 -lgmp -Wall
+CC = gcc
+CFLAGS = -std=gnu99 -lgmp -Wall
 
 all: demo
 
